@@ -14,6 +14,8 @@ jmix {
 group = 'com.company'
 version = '0.0.1-SNAPSHOT'
 
+def flowsetBomVersion = project.findProperty('flowsetBomVersion') ?: '1.0.0-SNAPSHOT'
+
 repositories {
     mavenLocal()
     mavenCentral()
@@ -29,6 +31,8 @@ repositories {
 }
 
 dependencies {
+    implementation platform("io.flowset.bom:flowset-bom:$flowsetBomVersion")
+
     implementation 'io.jmix.core:jmix-core-starter'
     implementation 'io.jmix.data:jmix-eclipselink-starter'
     implementation 'io.jmix.security:jmix-security-starter'
@@ -41,10 +45,9 @@ dependencies {
     implementation 'io.jmix.datatools:jmix-datatools-starter'
     implementation 'io.jmix.datatools:jmix-datatools-flowui-starter'
 
-
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
-    implementation "com.vn:bpmcontrol-starter:1.0.0-SNAPSHOT"
+    implementation "com.vn:bpmcontrol-starter"
 
     runtimeOnly 'org.hsqldb:hsqldb'
 

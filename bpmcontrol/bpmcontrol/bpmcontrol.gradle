@@ -75,15 +75,14 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
     /* =========================
-       Spring Cloud (BOM đúng cách)
+       Spring Cloud
        ========================= */
-    implementation platform('org.springframework.cloud:spring-cloud-dependencies:2023.0.1')
     implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 
     /* =========================
        Camunda 7
        ========================= */
-    implementation 'org.camunda.community.rest:camunda-platform-7-rest-client-spring-boot:7.20.0'
+    implementation 'org.camunda.community.rest:camunda-platform-7-rest-client-spring-boot'
     implementation 'io.holunda.camunda-api:camunda-bpm-engine-api'
 
     /* =========================
@@ -95,7 +94,7 @@ dependencies {
        Utils / Mapping
        ========================= */
     implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
-    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+    implementation 'org.mapstruct:mapstruct'
     compileOnly 'org.projectlombok:lombok'
 
     annotationProcessor platform("io.flowset.bom:flowset-bom:$flowsetBomVersion")
