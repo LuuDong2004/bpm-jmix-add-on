@@ -1,0 +1,67 @@
+<!--
+  ~ Copyright (c) Haulmont 2024. All Rights Reserved.
+  ~ Use is subject to license terms.
+  -->
+
+<fragment xmlns="http://jmix.io/schema/flowui/fragment">
+    <data>
+        <instance id="processInstanceDataDc"
+                  class="com.vn.bpmcontrol.entity.processinstance.ProcessInstanceData" provided="true"/>
+
+        <collection id="runtimeJobsDc"
+                    class="com.vn.bpmcontrol.entity.job.JobData">
+            <loader id="runtimeJobsDl" readOnly="true"/>
+        </collection>
+
+    </data>
+    <content>
+        <vbox height="100%" width="100%" themeNames="spacing-xs" minHeight="20em" padding="false">
+            <hbox classNames="buttons-panel" padding="false">
+                <button action="runtimeJobsGrid.retry" themeNames="small"/>
+                <button action="runtimeJobsGrid.activate" themeNames="small"/>
+                <button action="runtimeJobsGrid.suspend" themeNames="small"/>
+                <simplePagination id="jobsPagination" dataLoader="runtimeJobsDl"/>
+            </hbox>
+            <dataGrid id="runtimeJobsGrid" width="100%" height="100%" themeNames="compact"
+                      dataContainer="runtimeJobsDc">
+                <actions>
+                    <action id="edit"
+                            text="msg:///actions.View"
+                            icon="EYE"
+                            type="list_edit"/>
+                    <action id="retry"
+                            text="msg:///actions.Retry"
+                            icon="ROTATE_LEFT"
+                            type="list_itemTracking"/>
+                    <action id="activate"
+                            icon="PLAY" type="list_itemTracking"
+                            text="msg:///actions.Activate"/>
+                    <action id="suspend"
+                            icon="PAUSE" type="list_itemTracking"
+                            text="msg:///actions.Suspend"/>
+                </actions>
+                <columns resizable="true">
+                    <column property="jobId">
+                        <fragmentRenderer
+                                class="com.vn.bpmcontrol.view.job.column.JobIdColumnFragment">
+                            <properties>
+                                <property name="openMode" value="DIALOG"/>
+                            </properties>
+                        </fragmentRenderer>
+                    </column>
+                    <column property="failedActivityId" sortable="false">
+                        <fragmentRenderer
+                                class="com.vn.bpmcontrol.view.processinstance.runtime.job.JobFailedActivityIdColumnFragment"/>
+                    </column>
+                    <column property="createTime"/>
+                    <column property="retries" autoWidth="true"/>
+                    <column property="priority" autoWidth="true"/>
+                    <column property="state" autoWidth="true" sortable="false">
+                        <fragmentRenderer
+                                class="com.vn.bpmcontrol.view.job.column.state.JobStateColumnFragment"/>
+                    </column>
+                </columns>
+            </dataGrid>
+        </vbox>
+    </content>
+</fragment>

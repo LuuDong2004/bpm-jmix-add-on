@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<menu-config xmlns="http://jmix.io/schema/flowui/menu">
+    <!-- Main group -->
+        <item id="dashboard" view="MainView" title="msg://com.vn.bpmcontrol/menu_config.dashboard.title"/>
+    <item id="processDefinitions" view="bpm_ProcessDefinition.list"
+          description="msg://com.vn.bpmcontrol/menu_config.bpm_ProcessDefinition.list.description"
+          title="msg://com.vn.bpmcontrol/menu_config.bpm_ProcessDefinition.list.title" icon="SITEMAP"/>
+    <item view="bpm_ProcessInstance.list"
+          description="msg://com.vn.bpmcontrol/menu_config.bpm_ProcessInstance.list.description"
+          title="msg://com.vn.bpmcontrol/menu_config.bpm_ProcessInstance.list.title" icon="TASKS"/>
+    <item view="IncidentData.list" title="msg://com.vn.bpmcontrol.view.incidentdata/incidentDataListView.title"
+          icon="WARNING"/>
+    <item view="bpm_AllTasksView" title="msg://com.vn.bpmcontrol/allTasks" icon="USER_CARD"/>
+
+    <!-- DMN group -->
+    <item id="decisions" view="bpm_DecisionDefinition.list"
+          title="msg://com.vn.bpmcontrol.view.decisiondefinition/decisionDefinitionListView.title"
+          icon="vaadin:table"/>
+
+    <!-- System group -->
+    <item id="deployments" view="bpm_Deployment.list"
+          title="msg://com.vn.bpmcontrol.view.deploymentdata/deploymentListView.title" icon="vaadin:file-process"/>
+
+    <menu id="administration" description="msg://com.vn.bpmcontrol/menu_config.administration.description"
+          opened="true"
+          title="msg://com.vn.bpmcontrol/menu_config.administration.title" icon="vaadin:cog">
+        <item view="BpmEngine.list" title="msg://com.vn.bpmcontrol.view.bpmengine/bpmEngineListView.title"
+        />
+<!--        <item id="bpmUsers" view="User.list" title="msg://com.vn.bpmcontrol.view.user/UserListView.title"/>-->
+<!--        <item view="sec_ResourceRoleModel.list"-->
+<!--              title="msg://com.vn.bpmcontrol/menu_config.resourceRole.list.title"/>-->
+    </menu>
+
+    <!-- Support group -->
+    <item id="about" view="AboutProductView" title="msg://com.vn.bpmcontrol.view.about/aboutProductView.title"
+          icon="INFO_CIRCLE_O"/>
+</menu-config>

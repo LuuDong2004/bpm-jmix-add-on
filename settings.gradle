@@ -1,0 +1,5 @@
+rootProject.name = 'flowset'
+ext.jmixCompositeProjectRoot = true
+
+includeBuild 'app'
+includeBuild 'bpmcontrol'

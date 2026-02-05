@@ -1,0 +1,84 @@
+/*
+ * Copyright (c) Haulmont 2024. All Rights Reserved.
+ * Use is subject to license terms.
+ */
+
+package com.vn.bpmcontrol.view.incidentdata.filter;
+
+import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.router.QueryParameters;
+import com.vn.bpmcontrol.facet.urlqueryparameters.HasFilterUrlParamHeaderFilter;
+import io.jmix.flowui.component.grid.DataGridColumn;
+import io.jmix.flowui.component.textfield.TypedTextField;
+import io.jmix.flowui.model.InstanceContainer;
+import com.vn.bpmcontrol.entity.filter.IncidentFilter;
+import com.vn.bpmcontrol.entity.incident.IncidentData;
+import com.vn.bpmcontrol.view.incidentdata.IncidentHeaderFilter;
+import org.apache.commons.lang3.StringUtils;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import static com.vn.bpmcontrol.facet.urlqueryparameters.IncidentListQueryParamBinder.MESSAGE_FILTER_PARAM;
+import static com.vn.bpmcontrol.view.util.FilterQueryParamUtils.getStringParam;
+
+public class MessageHeaderFilter extends IncidentHeaderFilter implements HasFilterUrlParamHeaderFilter {
+    protected TypedTextField<String> messageField;
+
+    public MessageHeaderFilter(Grid<IncidentData> dataGrid,
+                               DataGridColumn<IncidentData> column,
+                               InstanceContainer<IncidentFilter> filterDc) {
+        super(dataGrid, column, filterDc);
+    }
+
+
+    @Override
+    protected Component createFilterComponent() {
+        return createMessageFilter();
+    }
+
+    @Override
+    protected void resetFilterValues() {
+        messageField.clear();
+    }
+
+    @Override
+    public void apply() {
+        String value = messageField.getTypedValue();
+        if (StringUtils.isEmpty(value)) {
+            value = null;
+        }
+        filterDc.getItem().setIncidentMessageLike(value);
+
+        filterButton.getElement().setAttribute(COLUMN_FILTER_BUTTON_ACTIVATED_ATTRIBUTE_NAME, value != null);
+    }
+
+    @Override
+    public void updateComponents(QueryParameters queryParameters) {
+        String paramValue = getStringParam(queryParameters, MESSAGE_FILTER_PARAM);
+        messageField.setTypedValue(paramValue);
+
+        apply();
+    }
+
+    @Override
+    public Map<String, String> getQueryParamValues() {
+        Map<String, String> paramValues = new HashMap<>();
+        paramValues.put(MESSAGE_FILTER_PARAM, messageField.getTypedValue());
+
+        return paramValues;
+    }
+
+    protected TextField createMessageFilter() {
+        messageField = uiComponents.create(TypedTextField.class);
+        messageField.setWidthFull();
+        messageField.setMinWidth("30em");
+        messageField.setClearButtonVisible(true);
+        messageField.setLabel(messages.getMessage(IncidentFilter.class, "IncidentFilter.incidentMessageLike"));
+        messageField.setPlaceholder(messages.getMessage(getClass(), "incidentMessage.placeholder"));
+
+        return messageField;
+    }
+}

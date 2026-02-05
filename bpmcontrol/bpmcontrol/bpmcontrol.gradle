@@ -1,0 +1,141 @@
+archivesBaseName = 'bpmcontrol'
+
+def flowsetBomVersion = project.findProperty('flowsetBomVersion') ?: '1.0.0-SNAPSHOT'
+
+repositories {
+    // Local (rất quan trọng khi dev Flowset add-on)
+    mavenLocal()
+
+    // Public
+    mavenCentral()
+    maven { url 'https://global.repo.jmix.io/repository/public' }
+    maven { url 'https://maven.vaadin.com/vaadin-addons' }
+    maven { url 'https://repo.holunda.io/repository/maven-public/' }
+
+    // Flowset repo (private hoặc public)
+    if (project.hasProperty('flowsetRepoUrl')) {
+        maven {
+            url = rootProject['flowsetRepoUrl']
+            credentials {
+                username = rootProject['flowsetRepoUser']
+                password = rootProject['flowsetRepoPassword']
+            }
+            allowInsecureProtocol = true
+        }
+    } else {
+        maven {
+            url 'https://nexus.flowset.io/repository/public'
+        }
+    }
+}
+
+dependencies {
+
+    /* =========================
+       Flowset
+       ========================= */
+    implementation(platform("io.flowset.bom:flowset-bom:$flowsetBomVersion"))
+    implementation 'io.flowset.ui:flowset-theme'
+    implementation 'io.flowset.ui:flowset-ui-kit-starter'
+
+    /* =========================
+       Jmix
+       ========================= */
+    implementation 'io.jmix.core:jmix-core-starter'
+    implementation 'io.jmix.data:jmix-eclipselink-starter'
+    implementation 'io.jmix.flowui:jmix-flowui-starter'
+    implementation 'io.jmix.flowui:jmix-flowui-data-starter'
+    implementation 'io.jmix.flowui:jmix-flowui-themes'
+    implementation 'io.jmix.gridexport:jmix-gridexport-flowui-starter'
+    implementation 'io.jmix.security:jmix-security-starter'
+    implementation 'io.jmix.security:jmix-security-flowui-starter'
+    implementation 'io.jmix.security:jmix-security-data-starter'
+    implementation 'io.jmix.localfs:jmix-localfs-starter'
+    implementation 'io.jmix.datatools:jmix-datatools-starter'
+    implementation 'io.jmix.datatools:jmix-datatools-flowui-starter'
+    implementation 'io.jmix.charts:jmix-charts-flowui-starter'
+    implementation 'io.jmix.oidc:jmix-oidc-starter'
+    implementation 'io.jmix.multitenancy:jmix-multitenancy-starter'
+    implementation 'io.jmix.multitenancy:jmix-multitenancy-flowui-starter'
+
+    /* =========================
+       Jmix Translations
+       ========================= */
+    implementation 'io.jmix.translations:jmix-translations-de'
+    implementation 'io.jmix.translations:jmix-translations-es'
+    implementation 'io.jmix.translations:jmix-translations-ru'
+
+
+
+
+    /* =========================
+       Spring Boot
+       ========================= */
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+    /* =========================
+       Spring Cloud (BOM đúng cách)
+       ========================= */
+    implementation platform('org.springframework.cloud:spring-cloud-dependencies:2023.0.1')
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+    /* =========================
+       Camunda 7
+       ========================= */
+    implementation 'org.camunda.community.rest:camunda-platform-7-rest-client-spring-boot:7.20.0'
+    implementation 'io.holunda.camunda-api:camunda-bpm-engine-api'
+
+    /* =========================
+       Vaadin Add-ons
+       ========================= */
+    implementation 'org.vaadin.addons.componentfactory:spinner'
+
+    /* =========================
+       Utils / Mapping
+       ========================= */
+    implementation 'com.fasterxml.jackson.module:jackson-module-kotlin'
+    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+    compileOnly 'org.projectlombok:lombok'
+
+    annotationProcessor platform("io.flowset.bom:flowset-bom:$flowsetBomVersion")
+    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.mapstruct:mapstruct-processor'
+
+    /* =========================
+       Database drivers
+       ========================= */
+    runtimeOnly 'org.hsqldb:hsqldb'
+    runtimeOnly 'org.postgresql:postgresql'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    runtimeOnly 'com.oracle.database.jdbc:ojdbc11'
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+
+    /* =========================
+       Testing
+       ========================= */
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    testImplementation 'io.jmix.flowui:jmix-flowui-test-assist'
+    testImplementation 'org.testcontainers:junit-jupiter'
+    testImplementation 'org.testcontainers:postgresql'
+
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+/* =========================
+   Excludes
+   ========================= */
+configurations.configureEach {
+    exclude group: 'com.vaadin', module: 'hilla'
+    exclude group: 'com.vaadin', module: 'hilla-dev'
+    exclude group: 'com.vaadin', module: 'copilot'
+}
+
+test {
+    useJUnitPlatform()
+    systemProperties(System.getProperties())
+}

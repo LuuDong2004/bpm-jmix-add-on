@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+  ~ Copyright (c) Haulmont 2024. All Rights Reserved.
+  ~ Use is subject to license terms.
+  -->
+
+<view xmlns="http://jmix.io/schema/flowui/view"
+      title="msg://jobErrorDetailsView.title">
+    <actions>
+        <action id="copy" type="control_copyComponentValueToClipboard"/>
+        <action id="close" type="view_close" text="msg:///actions.Close"/>
+    </actions>
+    <layout>
+        <codeEditor id="errorDetailsCodeEditor" readOnly="true"
+                    maxHeight="30em" mode="TEXT"/>
+        <hbox width="100%" justifyContent="END">
+            <button action="copy"/>
+            <button action="close"/>
+        </hbox>
+    </layout>
+</view>

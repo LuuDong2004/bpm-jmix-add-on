@@ -1,0 +1,45 @@
+package com.vn.bpmcontrol.view.processinstanceterminate;
+
+
+import com.vaadin.flow.router.Route;
+import io.jmix.flowui.component.textarea.JmixTextArea;
+import io.jmix.flowui.kit.action.ActionPerformedEvent;
+import io.jmix.flowui.view.*;
+import com.vn.bpmcontrol.entity.processinstance.ProcessInstanceData;
+import com.vn.bpmcontrol.service.processinstance.ProcessInstanceService;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Collections;
+
+@Route(value = "process-instance-terminate-view", layout = DefaultMainViewParent.class)
+@ViewController(id = "ProcessInstanceTerminateView")
+@ViewDescriptor(path = "process-instance-terminate-view.xml")
+public class ProcessInstanceTerminateView extends StandardView {
+
+    @Autowired
+    private ProcessInstanceService processInstanceService;
+
+    @ViewComponent
+    private JmixTextArea reasonTextArea;
+
+    protected ProcessInstanceData processInstanceData;
+
+    public void setProcessInstanceData(ProcessInstanceData processInstanceData) {
+        this.processInstanceData = processInstanceData;
+    }
+
+    @Subscribe("terminateAction")
+    public void onTerminateAction(final ActionPerformedEvent event) {
+        String processInstanceId = processInstanceData.getId();
+        String reasonValue = reasonTextArea.getValue();
+
+        processInstanceService.terminateByIdsAsync(Collections.singletonList(processInstanceId), reasonValue);
+
+        close(StandardOutcome.SAVE);
+    }
+
+    @Subscribe("cancelAction")
+    public void onCancelAction(final ActionPerformedEvent event) {
+        close(StandardOutcome.DISCARD);
+    }
+}

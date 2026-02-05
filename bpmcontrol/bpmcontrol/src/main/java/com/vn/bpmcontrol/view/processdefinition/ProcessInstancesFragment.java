@@ -1,0 +1,154 @@
+/*
+ * Copyright (c) Haulmont 2024. All Rights Reserved.
+ * Use is subject to license terms.
+ */
+
+package com.vn.bpmcontrol.view.processdefinition;
+
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.icon.VaadinIcon;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.shared.Tooltip;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
+import com.vaadin.flow.data.renderer.Renderer;
+import com.vaadin.flow.router.RouteParameters;
+import com.vaadin.flow.theme.lumo.LumoUtility;
+import io.jmix.core.AccessManager;
+import io.jmix.core.DataLoadContext;
+import io.jmix.core.Messages;
+import io.jmix.core.Metadata;
+import io.jmix.flowui.Fragments;
+import io.jmix.flowui.Notifications;
+import io.jmix.flowui.UiEventPublisher;
+import io.jmix.flowui.ViewNavigators;
+import io.jmix.flowui.accesscontext.UiEntityContext;
+import io.jmix.flowui.component.grid.DataGrid;
+import io.jmix.flowui.component.pagination.SimplePagination;
+import io.jmix.flowui.data.pagination.PaginationDataLoader;
+import io.jmix.flowui.data.pagination.PaginationDataLoaderImpl;
+import io.jmix.flowui.fragment.Fragment;
+import io.jmix.flowui.fragment.FragmentDescriptor;
+import io.jmix.flowui.kit.action.ActionPerformedEvent;
+import io.jmix.flowui.kit.component.button.JmixButton;
+import io.jmix.flowui.model.BaseCollectionLoader;
+import io.jmix.flowui.model.CollectionContainer;
+import io.jmix.flowui.model.HasLoader;
+import io.jmix.flowui.model.InstanceContainer;
+import io.jmix.flowui.view.Install;
+import io.jmix.flowui.view.MessageBundle;
+import io.jmix.flowui.view.Subscribe;
+import io.jmix.flowui.view.Supply;
+import io.jmix.flowui.view.ViewComponent;
+import com.vn.bpmcontrol.entity.filter.ProcessInstanceFilter;
+import com.vn.bpmcontrol.entity.processdefinition.ProcessDefinitionData;
+import com.vn.bpmcontrol.entity.processinstance.ProcessInstanceData;
+import com.vn.bpmcontrol.entity.processinstance.RuntimeProcessInstanceData;
+import com.vn.bpmcontrol.service.processinstance.ProcessInstanceService;
+import com.vn.bpmcontrol.view.processdefinition.event.ResetActivityEvent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+
+import static io.jmix.flowui.component.UiComponentUtils.getCurrentView;
+
+@FragmentDescriptor("process-instances-fragment.xml")
+public class ProcessInstancesFragment extends Fragment<VerticalLayout> {
+
+    @Autowired
+    protected ApplicationContext applicationContext;
+    @Autowired
+    protected Notifications notifications;
+    @Autowired
+    protected Messages messages;
+    @Autowired
+    protected ViewNavigators viewNavigators;
+    @Autowired
+    protected ProcessInstanceService processInstanceService;
+    @Autowired
+    protected Fragments fragments;
+    @Autowired
+    protected Metadata metadata;
+    @Autowired
+    protected UiEventPublisher uiEventPublisher;
+
+    @ViewComponent
+    protected MessageBundle messageBundle;
+    @ViewComponent
+    protected InstanceContainer<ProcessDefinitionData> processDefinitionDataDc;
+    @ViewComponent
+    protected CollectionContainer<RuntimeProcessInstanceData> processInstanceDataDc;
+    @ViewComponent
+    protected VerticalLayout processInstanceVBox;
+    @ViewComponent
+    protected DataGrid<RuntimeProcessInstanceData> processInstancesGrid;
+    @ViewComponent
+    protected SimplePagination processInstancesPagination;
+    @ViewComponent
+    protected Div selectedActivityContainer;
+    @ViewComponent
+    protected InstanceContainer<ProcessInstanceFilter> processInstanceFilterDc;
+
+    @Subscribe
+    public void onReady(ReadyEvent event) {
+        if (processInstanceDataDc instanceof HasLoader container && container.getLoader() instanceof BaseCollectionLoader) {
+            PaginationDataLoader paginationLoader =
+                    applicationContext.getBean(PaginationDataLoaderImpl.class, container.getLoader());
+            processInstancesPagination.setPaginationLoader(paginationLoader);
+        }
+    }
+
+    @Install(to = "processInstancesPagination", subject = "totalCountDelegate")
+    protected Integer processInstancesPaginationTotalCountDelegate(final DataLoadContext dataLoadContext) {
+        return (int) processInstanceService.getRuntimeInstancesCount(processInstanceFilterDc.getItem());
+    }
+
+    @Subscribe("processInstancesGrid.edit")
+    public void onProcessDefinitionsGridViewDetails(ActionPerformedEvent event) {
+        RuntimeProcessInstanceData selectedInstance = processInstancesGrid.getSingleSelectedItem();
+        if (selectedInstance == null) {
+            return;
+        }
+        openProcessInstanceDetailView(selectedInstance);
+    }
+
+    @Install(to = "processInstancesGrid.id", subject = "tooltipGenerator")
+    protected String processInstancesGridIdTooltipGenerator(final RuntimeProcessInstanceData processInstanceData) {
+        return processInstanceData.getId();
+    }
+
+    protected void openProcessInstanceDetailView(RuntimeProcessInstanceData selectedInstance) {
+        viewNavigators.detailView(getCurrentView(), ProcessInstanceData.class)
+                .withRouteParameters(new RouteParameters("id", selectedInstance.getId()))
+                .withBackwardNavigation(true)
+                .navigate();
+    }
+
+    public void clearActivity() {
+        selectedActivityContainer.removeAll();
+    }
+
+    public void showActivity(String elementId, String elementType, String elementName) {
+        selectedActivityContainer.removeAll();
+
+        Span activityBadge = new Span(messageBundle.formatMessage("selectedActivityBadge.text", elementId));
+        activityBadge.getElement().getThemeList().add("badge pill primary small");
+        activityBadge.setHeight("min-content");
+
+        Tooltip tooltip = Tooltip.forComponent(activityBadge);
+        tooltip.setText("%s: %s".formatted(elementType, elementName));
+
+        JmixButton clearBtn = uiComponents.create(JmixButton.class);
+        clearBtn.setIcon(VaadinIcon.CLOSE_SMALL.create());
+        clearBtn.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE);
+        clearBtn.addClassNames(LumoUtility.TextColor.PRIMARY_CONTRAST);
+        clearBtn.addClickListener(clickEvent -> {
+            clearActivity();
+            uiEventPublisher.publishEventForCurrentUI(new ResetActivityEvent(this, elementId));
+        });
+
+        activityBadge.add(clearBtn);
+
+        selectedActivityContainer.add(activityBadge);
+    }
+}

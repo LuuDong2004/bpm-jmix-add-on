@@ -1,0 +1,83 @@
+buildscript {
+    repositories {
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath "io.jmix.gradle:jmix-gradle-plugin:2.7.4"
+    }
+}
+
+group = 'com.vn'
+version = '0.0.1-SNAPSHOT'
+
+subprojects {
+    apply plugin: 'java-library'
+    apply plugin: 'maven-publish'
+    apply plugin: 'io.jmix'
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {
+            url = 'https://global.repo.jmix.io/repository/public'
+        }
+        maven {
+            url = 'https://nexus.flowset.io/repository/public'
+        }
+        maven {
+            url = 'https://maven.vaadin.com/vaadin-addons'
+        }
+        maven {
+            url = 'https://repo.holunda.io/repository/maven-public/'
+        }
+    }
+
+    jmix {
+        bomVersion = '2.7.4'
+        projectId = 'bpmctl'
+    }
+
+    group = this.group
+    version = this.version
+
+    def props = new Properties()
+    buildFile.withInputStream { props.load(it) }
+    def subArchivesBaseName = props.getProperty('archivesBaseName')
+    def archName = subArchivesBaseName.substring(1, subArchivesBaseName.length() - 1)
+
+    java {
+        withSourcesJar()
+    }
+
+    artifacts {
+        archives sourcesJar
+    }
+
+    publishing {
+        repositories {
+            maven {
+                url = 'https://myrepo/releases/'
+                credentials {
+                    username = rootProject.hasProperty('uploadUser') ? rootProject['uploadUser'] : 'admin'
+                    password = rootProject.hasProperty('uploadPassword') ? rootProject['uploadPassword'] : 'admin'
+                }
+                allowInsecureProtocol = true
+            }
+        }
+        publications {
+            javaMaven(MavenPublication) {
+                artifactId = archName
+                from components.java
+            }
+        }
+    }
+
+    // remove after https://youtrack.jetbrains.com/issue/IDEA-227215 is fixed
+    tasks.withType(GenerateModuleMetadata) {
+        enabled = false
+    }
+
+    project.tasks.withType(JavaCompile).configureEach {
+        options.compilerArgs.add("-parameters")
+    }
+}
