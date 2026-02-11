@@ -3,9 +3,7 @@ archivesBaseName = 'bpmcontrol'
 def flowsetBomVersion = project.findProperty('flowsetBomVersion') ?: '1.0.0-SNAPSHOT'
 
 repositories {
-    // Local (rất quan trọng khi dev Flowset add-on)
     mavenLocal()
-
     // Public
     mavenCentral()
     maven { url 'https://global.repo.jmix.io/repository/public' }

@@ -48,7 +48,7 @@ import static io.jmix.flowui.component.UiComponentUtils.getCurrentView;
 
 @Slf4j
 @Route("")
-@ViewController("MainView")
+@ViewController("MainViewBpm")
 @ViewDescriptor("main-view.xml")
 public class MainView extends StandardMainView {
     @ViewComponent
